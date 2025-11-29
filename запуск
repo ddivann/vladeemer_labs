@@ -1,0 +1,39 @@
+---1---
+cd /home/divan/vladeemer_labs/lab1
+make
+./bin/sum-server-clean
+echo -e "test_output.txt\n1 2 3\n10 -5 7\n\n" | ./sum-server-clean && cat test_output.txt
+
+---2---
+cd /home/divan/vladeemer_labs/lab2
+make
+
+-n <size>: Количество элементов (обязательно, округлится до степени 2)
+-t <threads>: Количество потоков (обязательно, >= 1)
+-c: Проверить корректность сортировки
+--seed N: Начальное значение для ГПСЧ (для воспроизводимости)
+--pause S: Пауза в S секунд (для демонстрации потоков)
+--print-threads: Показать количество потоков из status
+
+./bitonic-sync -n 1024 -t 4 -c
+./bitonic-atomic -n 100000 -t 8 -c --seed 42
+
+---3---
+cd /home/divan/vladeemer_labs/lab3
+make
+./sum-server-shm
+echo -e "output.txt\n1 2 3\n4 5\n6\n\n" | ./sum-server-shm
+cat output.txt  # Результат: 6, 9, 6
+
+---4---
+cd /home/divan/vladeemer_labs/lab4
+make
+
+Fallback (системный mmap):
+./src/driver
+Free list аллокатор:
+./src/driver ./alloc_free_list.so 1048576 10000
+Buddy аллокатор (Мак-Кьюзи-Кэрелс):
+./src/driver ./alloc_mc_kusick.so 1048576 10000
+
+echo "╔════════════════════════════════════════════════╗" && echo "║  Сравнение аллокаторов (100 МиБ, 10000 alloc) ║" && echo "╚════════════════════════════════════════════════╝" && echo -e "\n[1] Fallback (mmap)" && ./src/driver 104857600 10000 && echo -e "\n[2] Free List (first-fit)" && ./src/driver ./alloc_free_list.so 104857600 10000 && echo -e "\n[3] Buddy (McKusick-Karels)" && ./src/driver ./alloc_mc_kusick.so 104857600 10000
